@@ -5,13 +5,29 @@
 # Distributed under the Boost Software License, Version 1.0. (See accompanying 
 # file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
+cmake_minimum_required(VERSION 2.8)
+
+if(NOT HPX_ROOT)
+    if(NOT $ENV{HPX_ROOT} STREQUAL "")
+        set(HPX_ROOT $ENV{HPX_ROOT})
+    else()
+        hpx_error("HPX_ROOT not set, unable to find hpx!")
+    endif()
+endif()
+
+set(CMAKE_MODULE_PATH ${HPX_ROOT}/share/cmake-2.8/Modules)
+
+find_package(HPX)
+
+include_directories(${HPX_INCLUDE_DIRS})
+
 # just recurse into all components subdirectories and execute the scripts there
 set(subdirs 
     amr
     amr_c
     amr_c_test)
 
-find_package(HPX_GMP)
+#find_package(HPX_GMP)
 find_package(HPX_RNPL)
 
 if(RNPL_FOUND)
@@ -20,15 +36,11 @@ if(RNPL_FOUND)
   include_directories(${RNPL_INCLUDE_DIR})
 endif()
 
-if(GMP_FOUND)
-  # FIXME: HPX_* identifiers please
-  add_definitions(-DGMP_FOUND)
-  include_directories(${GMP_INCLUDE_DIR})
+# MPFR depends on GMP, so no point looking for it if we don't have GMP  
+find_package(HPX_Mpfr)
+find_package(HPX_Mp)
 
-  # MPFR depends on GMP, so no point looking for it if we don't have GMP  
-  find_package(HPX_MPFR)
-  
-  if(MPFR_FOUND)
+if(MPFR_FOUND)
     # FIXME: HPX_* identifiers please
     add_definitions(-DMPFR_FOUND=1)
     add_definitions(-DMPFR_USE_NED_ALLOCATOR=1)
@@ -38,8 +50,6 @@ if(GMP_FOUND)
     # allow the mpreal class to take advantage of move semantics
     # FIXME: HPX_* identifiers please
     add_definitions(-DMPFR_USE_BOOST_MOVE=1)
-    include_directories(${hpx_SOURCE_DIR}/external/move)
-  endif()
 endif()
 
 foreach(subdir ${subdirs})
@@ -93,5 +103,5 @@ add_hpx_executable(had_amr_client
   DEPENDENCIES ${dependencies})
 
 # add a dependency to the pseudo-target  
-add_hpx_pseudo_dependencies(examples.had_amr had_amr_client_exe) 
+#add_hpx_pseudo_dependencies(examples.had_amr had_amr_client_exe) 
 
