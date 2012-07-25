@@ -1,4 +1,4 @@
-//  Copyright (c) 2007-2010 Hartmut Kaiser
+//  Copyright (c) 2007-2012 Hartmut Kaiser
 // 
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying 
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -38,14 +38,14 @@ namespace hpx { namespace components { namespace amr
 
         // The eval and is_last_timestep functions have to be overloaded by any
         // functional component derived from this class
-        lcos::future_value<int> eval_async(naming::id_type const& result, 
+        lcos::future<std::size_t> eval_async(naming::id_type const& result, 
             std::vector<naming::id_type> const& gids, std::size_t row, std::size_t column,
             Parameter const& par)
         {
             return this->base_type::eval_async(this->gid_, result, gids, row, column,par);
         }
 
-        int eval(naming::id_type const& result, 
+        std::size_t eval(naming::id_type const& result, 
             std::vector<naming::id_type> const& gids, std::size_t row, std::size_t column,
             Parameter const& par)
         {
@@ -53,17 +53,15 @@ namespace hpx { namespace components { namespace amr
         }
 
         ///////////////////////////////////////////////////////////////////////
-        lcos::future_value<naming::id_type> alloc_data_async(int item,
-            int maxitems, int row,
-            Parameter const& par)
+        lcos::future<naming::id_type> alloc_data_async(std::size_t item,
+            std::size_t maxitems, std::size_t row, Parameter const& par)
         {
             return this->base_type::alloc_data_async(this->gid_, item, 
                 maxitems, row, par);
         }
 
-        naming::id_type alloc_data(int item, int maxitems,
-            int row,
-            Parameter const& par)
+        naming::id_type alloc_data(std::size_t item, std::size_t maxitems,
+            std::size_t row, Parameter const& par)
         {
             return this->base_type::alloc_data(this->gid_, item, maxitems, 
                 row, par);

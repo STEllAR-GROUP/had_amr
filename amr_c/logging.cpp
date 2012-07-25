@@ -1,6 +1,6 @@
-//  Copyright (c) 2007-2010 Hartmut Kaiser
-// 
-//  Distributed under the Boost Software License, Version 1.0. (See accompanying 
+//  Copyright (c) 2007-2012 Hartmut Kaiser
+//
+//  Distributed under the Boost Software License, Version 1.0. (See accompanying
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 #include <iostream>
@@ -33,7 +33,8 @@ namespace hpx { namespace components { namespace amr { namespace server
     ///////////////////////////////////////////////////////////////////////////
     // Implement actual functionality of this stencil
     // Compute the result value for the current time step
-    void logging::logentry(stencil_data const& val, int row, int logcode, Parameter const& par)
+    void logging::logentry(stencil_data const& val, std::size_t row,
+        int logcode, Parameter const& par)
     {
         mutex_type::scoped_lock l(mtx_);
         int i;
@@ -41,13 +42,13 @@ namespace hpx { namespace components { namespace amr { namespace server
         if ( par->output_stdout == 1 ) {
           if (fmod(val.timestep_,par->output) < 1.e-6) {
             for (i=0;i<val.granularity;i++) {
-              std::cout << " AMR Level: " << val.level_ 
-                        << " Timestep: " <<  val.timestep_ 
-                        << " Time: " << val.timestep_*par->dx0*par->lambda  
-                        << " row: " << row 
-                        << " index: " << val.index_ 
-                        << " Value: " << val.value_[i].phi[0][0] 
-                        << " x-coordinate: " << val.x_[i] 
+              std::cout << " AMR Level: " << val.level_
+                        << " Timestep: " <<  val.timestep_
+                        << " Time: " << val.timestep_*par->dx0*par->lambda
+                        << " row: " << row
+                        << " index: " << val.index_
+                        << " Value: " << val.value_[i].phi[0][0]
+                        << " x-coordinate: " << val.x_[i]
                         << std::endl << std::flush ;
             }
           }
@@ -93,7 +94,7 @@ namespace hpx { namespace components { namespace amr { namespace server
 #if defined(SDF_FOUND)
             int shape[3];
             char cnames[80] = { "r" };
-            shape[0] = x.size(); 
+            shape[0] = x.size();
             gft_out_full("chi",datatime,shape,cnames,1,&*x.begin(),&*chi.begin());
             gft_out_full("Phi",datatime,shape,cnames,1,&*x.begin(),&*Phi.begin());
             gft_out_full("Pi",datatime,shape,cnames,1,&*x.begin(),&*Pi.begin());

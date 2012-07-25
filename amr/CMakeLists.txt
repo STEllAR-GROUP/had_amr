@@ -1,64 +1,64 @@
-# Copyright (c) 2007-2009 Hartmut Kaiser
+# Copyright (c) 2007-2012 Hartmut Kaiser
 #
-# Distributed under the Boost Software License, Version 1.0. (See accompanying 
+# Distributed under the Boost Software License, Version 1.0. (See accompanying
 # file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-###############################################################################
-set(client_sources
+set(sources
+    server/dynamic_stencil_value.cpp
+    server/functional_component.cpp
+    server/stencil_value_out_adaptor.cpp
+    server/unigrid_mesh.cpp
     amr.cpp
     parameter.cpp)
 
-set(server_sources
-    server/unigrid_mesh.cpp
-    server/functional_component.cpp
-    server/stencil_value_out_adaptor.cpp
-    server/dynamic_stencil_value.cpp)
-
-###############################################################################
-set(client_headers
-    unigrid_mesh.hpp
-    functional_component.hpp
-    dynamic_stencil_value.hpp)
-
-set(stubs_headers
-    stubs/unigrid_mesh.hpp
-    stubs/functional_component.hpp
-    stubs/dynamic_stencil_value.hpp)
-
-set(server_headers
-    server/unigrid_mesh.hpp
-    server/functional_component.hpp
-    server/stencil_value_in_adaptor.hpp
-    server/stencil_value_out_adaptor.hpp
-    server/dynamic_stencil_value.hpp
-    server/dynamic_stencil_value_impl.hpp)
-
-###############################################################################
-set(sources
-    ${client_sources}
-    ${server_sources})
-
 set(headers
-    ${client_headers}
-    ${stubs_headers}
-    ${server_headers})
+    server/dynamic_stencil_value.hpp
+    server/dynamic_stencil_value_impl.hpp
+    server/functional_component.hpp
+    server/stencil_value_out_adaptor.hpp
+    server/unigrid_mesh.hpp
+    stubs/dynamic_stencil_value.hpp
+    stubs/functional_component.hpp
+    stubs/unigrid_mesh.hpp
+    dynamic_stencil_value.hpp
+    functional_component.hpp
+    unigrid_mesh.hpp)
 
-###############################################################################
 set(ini_files
     had_amr.ini)
 
-###############################################################################
-source_group("Source Files\\Client" FILES ${client_sources})
-source_group("Source Files\\Server" FILES ${server_sources})
-source_group("Header Files\\Client" FILES ${client_headers})
-source_group("Header Files\\Stubs"  FILES ${stubs_headers})
-source_group("Header Files\\Server" FILES ${server_headers})
-source_group("Configuration Files"  FILES ${ini_files})
+set(dependencies
+    distributing_factory_component
+    had_amr_c_component)
 
-###############################################################################
-add_hpx_component(had_amr 
-  MODULE had_amr
-  SOURCES ${sources} 
+if(GMP_FOUND)
+  # add GMP as a dependency
+  set(dependencies
+      ${dependencies}
+      ${GMP_LIBRARY})
+
+  include_directories(${GMP_INCLUDE_DIR})
+
+  if(MPFR_FOUND)
+    # add MPFR as a dependency
+    set(dependencies
+        ${dependencies}
+        ${MPFR_LIBRARY})
+    include_directories(${MPFR_INCLUDE_DIR})
+
+    # add the mpfr wrapper class sources
+    set(headers ${headers} ../mpreal.h ../serialize_mpreal.hpp)
+    set(sources ${sources} ../mpreal.cpp ../serialize_mpreal.cpp)
+  endif()
+endif()
+
+add_definitions(-DHPX_ACTION_ARGUMENT_LIMIT=6)
+
+add_hpx_component(had_amr
+  SOURCES ${sources}
   HEADERS ${headers}
-  INI ${ini_files})
+  FOLDER "Had_Amr"
+  FOLDER "Had_Amr"
+  INI ${ini_files}
+  DEPENDENCIES ${dependencies})
 

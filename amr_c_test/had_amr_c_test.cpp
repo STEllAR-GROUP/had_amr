@@ -1,6 +1,6 @@
-//  Copyright (c) 2007-2010 Hartmut Kaiser
-// 
-//  Distributed under the Boost Software License, Version 1.0. (See accompanying 
+//  Copyright (c) 2007-2012 Hartmut Kaiser
+//
+//  Distributed under the Boost Software License, Version 1.0. (See accompanying
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 #include <hpx/hpx_fwd.hpp>
@@ -16,11 +16,11 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 // windows needs to initialize MPFR in each shared library
-#if defined(BOOST_WINDOWS) 
+#if defined(BOOST_WINDOWS)
 
 #include "../init_mpfr.hpp"
 
-namespace hpx { namespace components { namespace amr 
+namespace hpx { namespace components { namespace amr
 {
     // initialize mpreal default precision
     init_mpfr init_;
@@ -29,7 +29,7 @@ namespace hpx { namespace components { namespace amr
 
 ///////////////////////////////////////////////////////////////////////////////
 // local functions
-inline int floatcmp(had_double_type const& x1, had_double_type const& x2) 
+inline int floatcmp(had_double_type const& x1, had_double_type const& x2)
 {
   // compare to floating point numbers
   static had_double_type const epsilon = 1.e-8;
@@ -47,12 +47,12 @@ void calcrhs(struct nodedata * rhs,
                 int flag, had_double_type const& dx, int size,
                 bool boundary, int *bbox,int compute_index, Par const& par);
 
-inline had_double_type initial_chi(had_double_type const& r,Par const& par) 
+inline had_double_type initial_chi(had_double_type const& r,Par const& par)
 {
-  return par.amp*exp( -(r-par.R0)*(r-par.R0)/(par.delta*par.delta) );   
+  return par.amp*exp( -(r-par.R0)*(r-par.R0)/(par.delta*par.delta) );
 }
 
-inline had_double_type initial_Phi(had_double_type const& r,Par const& par) 
+inline had_double_type initial_Phi(had_double_type const& r,Par const& par)
 {
   // Phi is the r derivative of chi
   static had_double_type const c_m2 = -2.;
@@ -60,10 +60,10 @@ inline had_double_type initial_Phi(had_double_type const& r,Par const& par)
 }
 
 ///////////////////////////////////////////////////////////////////////////
-int generate_initial_data(stencil_data* val, int item, int maxitems, int row,
-    Par const& par)
+int generate_initial_data(stencil_data* val, std::size_t item,
+    std::size_t maxitems, std::size_t row, Par const& par)
 {
-    // provide initial data for the given data value 
+    // provide initial data for the given data value
     val->max_index_ = maxitems;
     val->index_ = item;
     val->timestep_ = 0;
@@ -80,9 +80,9 @@ int generate_initial_data(stencil_data* val, int item, int maxitems, int row,
     std::size_t level = -1;
     for (int j=0;j<=par.allowedl;j++) {
       if (item >= par.level_begin[j] && item < par.level_end[j] ) {
-        level = j; 
+        level = j;
         break;
-      }    
+      }
     }
     BOOST_ASSERT(level >= 0);
 
@@ -121,9 +121,9 @@ int generate_initial_data(stencil_data* val, int item, int maxitems, int row,
     return 1;
 }
 
-int rkupdate(std::vector< nodedata* > const& vecval, stencil_data* result, 
+int rkupdate(std::vector< nodedata* > const& vecval, stencil_data* result,
   std::vector< had_double_type* > const& vecx, int size, bool boundary,
-  int *bbox, int compute_index, 
+  int *bbox, int compute_index,
   had_double_type const& dt, had_double_type const& dx, had_double_type const& timestep,
   int level, Par const& par)
 {
@@ -156,7 +156,7 @@ int rkupdate(std::vector< nodedata* > const& vecval, stencil_data* result,
     if ( compute_index-7 > 0 ) start = compute_index-7;
     else start = 0;
 
-    if ( compute_index+result->granularity+7 < vecval.size() ) end = compute_index+result->granularity+7; 
+    if ( compute_index+result->granularity+7 < vecval.size() ) end = compute_index+result->granularity+7;
     else end = vecval.size();
 
     for (int j=start;  j<end;j++) {
@@ -295,14 +295,14 @@ int rkupdate(std::vector< nodedata* > const& vecval, stencil_data* result,
 #endif
       // Phi
       result->value_[1].phi[0][1] = c_0_5*result->value_[2].phi[0][1];
-    } 
+    }
 
     // Calculate the energy
     for (int j=0; j<result->granularity; j++) {
 #ifndef UGLIFY
         result->value_[j].energy = c_0_5*(*vecx[j])*(*vecx[j])*(
                                   result->value_[j].phi[0][2]*result->value_[j].phi[0][2] // Pi^2
-                                + result->value_[j].phi[0][1]*result->value_[j].phi[0][1]) // Phi^2  
+                                + result->value_[j].phi[0][1]*result->value_[j].phi[0][1]) // Phi^2
                                    -(*vecx[j])*(*vecx[j])*pow(result->value_[j].phi[0][0],par.PP+1)/(par.PP+1);
 #else
         tmp = *vecx[j];
@@ -369,7 +369,7 @@ void calcrhs(struct nodedata * rhs,
   // are available for computing the rhs.
 
   // Add  dissipation if size = 7
-  if ( compute_index + 3 < size && compute_index - 3 >= 0 ) { 
+  if ( compute_index + 3 < size && compute_index - 3 >= 0 ) {
 #ifndef UGLIFY
     diss_chi = c_m1/(c_64*dr)*(  -vecval[compute_index-3]->phi[flag][0]
                              +c_6*vecval[compute_index-2]->phi[flag][0]
@@ -401,7 +401,7 @@ void calcrhs(struct nodedata * rhs,
     diss_chi /= c_64;
     diss_chi /= dr;
 #endif
-    
+
 #ifndef UGLIFY
     diss_Phi = c_m1/(c_64*dr)*(  -vecval[compute_index-3]->phi[flag][1]
                              +c_6*vecval[compute_index-2]->phi[flag][1]
@@ -468,7 +468,7 @@ void calcrhs(struct nodedata * rhs,
   }
 
 
-  if ( compute_index + 1 < size && compute_index - 1 >= 0 ) { 
+  if ( compute_index + 1 < size && compute_index - 1 >= 0 ) {
 
     had_double_type const& chi_np1 = vecval[compute_index+1]->phi[flag][0];
     had_double_type const& chi_nm1 = vecval[compute_index-1]->phi[flag][0];
@@ -545,7 +545,7 @@ void calcrhs(struct nodedata * rhs,
     rhs->phi[0][2] += tmp;
 #endif
 
-  } 
+  }
   else {
     // tapered point or boundary ( boundary case taken care of below )
     rhs->phi[0][0] = c_0; // chi rhs -- chi is set by quadratic fit
@@ -570,7 +570,7 @@ void calcrhs(struct nodedata * rhs,
       had_double_type const& Pi_nm1 = vecval[size-2]->phi[flag][2];
       had_double_type const& Pi_nm2 = vecval[size-3]->phi[flag][2];
 
-      // we are at the right boundary 
+      // we are at the right boundary
       rhs->phi[0][0] = Pi;  // chi rhs
 #ifndef UGLIFY
       rhs->phi[0][1] = -(c_3*Phi - c_4*Phi_nm1 + Phi_nm2)/(c_2*dr) - Phi/r;    // Phi rhs

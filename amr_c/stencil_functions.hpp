@@ -1,4 +1,4 @@
-//  Copyright (c) 2007-2010 Hartmut Kaiser
+//  Copyright (c) 2007-2012 Hartmut Kaiser
 // 
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying 
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -14,7 +14,7 @@
 /// The function \a generate_initial_data will be called to initialize the 
 /// given instance of 'stencil_data' 
 HPX_COMPONENT_EXPORT int generate_initial_data(
-    stencil_data* data, int item, int maxitems, int row,
+    stencil_data* data, std::size_t item, std::size_t maxitems, std::size_t row,
             Par const& par);
 
 /// The function \a evaluate_timestep will be called to compute the result data

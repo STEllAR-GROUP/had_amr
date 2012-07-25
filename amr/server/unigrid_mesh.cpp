@@ -1,6 +1,6 @@
-//  Copyright (c) 2007-2010 Hartmut Kaiser
-// 
-//  Distributed under the Boost Software License, Version 1.0. (See accompanying 
+//  Copyright (c) 2007-2012 Hartmut Kaiser
+//
+//  Distributed under the Boost Software License, Version 1.0. (See accompanying
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 #include <hpx/hpx.hpp>
@@ -25,17 +25,16 @@ typedef hpx::components::amr::server::unigrid_mesh had_unigrid_mesh_type;
 
 ///////////////////////////////////////////////////////////////////////////////
 // Serialization support for the actions
-HPX_REGISTER_ACTION_EX(had_unigrid_mesh_type::init_execute_action, 
+HPX_REGISTER_ACTION_EX(had_unigrid_mesh_type::init_execute_action,
     had_unigrid_mesh_init_execute_action);
-HPX_REGISTER_ACTION_EX(had_unigrid_mesh_type::execute_action, 
+HPX_REGISTER_ACTION_EX(had_unigrid_mesh_type::execute_action,
     had_unigrid_mesh_execute_action);
 
 HPX_REGISTER_MINIMAL_COMPONENT_FACTORY(
     hpx::components::simple_component<had_unigrid_mesh_type>, had_unigrid_mesh);
-HPX_DEFINE_GET_COMPONENT_TYPE(had_unigrid_mesh_type);
 
 ///////////////////////////////////////////////////////////////////////////////
-namespace hpx { namespace components { namespace amr { namespace server 
+namespace hpx { namespace components { namespace amr { namespace server
 {
     unigrid_mesh::unigrid_mesh()
     {}
@@ -51,7 +50,7 @@ namespace hpx { namespace components { namespace amr { namespace server
         if (logging.first != logging.second)
             log = *logging.first;
 
-        typedef std::vector<lcos::future_value<void> > lazyvals_type;
+        typedef std::vector<lcos::future<void> > lazyvals_type;
         lazyvals_type lazyvals;
 
         for (/**/; function != functions.second; ++function)
@@ -64,10 +63,10 @@ namespace hpx { namespace components { namespace amr { namespace server
     }
 
     ///////////////////////////////////////////////////////////////////////////////
-    // Create functional components, one for each data point, use those to 
+    // Create functional components, one for each data point, use those to
     // initialize the stencil value instances
     void unigrid_mesh::init_stencils(distributed_iterator_range_type const& stencils,
-        distributed_iterator_range_type const& functions, int static_step, 
+        distributed_iterator_range_type const& functions, int static_step,
         Array3D &dst_port,Array3D &dst_src,Array3D &dst_step,
         Array3D &dst_size,Array3D &src_size, Parameter const& par)
     {
@@ -75,7 +74,7 @@ namespace hpx { namespace components { namespace amr { namespace server
         components::distributing_factory::iterator_type function = functions.first;
 
         // start an asynchronous operation for each of the stencil value instances
-        typedef std::vector<lcos::future_value<void> > lazyvals_type;
+        typedef std::vector<lcos::future<void> > lazyvals_type;
         lazyvals_type lazyvals;
 
         for (int column = 0; stencil != stencils.second; ++stencil, ++function, ++column)
@@ -101,8 +100,8 @@ namespace hpx { namespace components { namespace amr { namespace server
 
             lazyvals.push_back(
                 stubs::dynamic_stencil_value::set_functional_component_async(
-                    *stencil, *function, static_step, column, 
-                    dst_size(static_step, column, 0), 
+                    *stencil, *function, static_step, column,
+                    dst_size(static_step, column, 0),
                     src_size(static_step, column, 0), par));
         }
         //BOOST_ASSERT(function == functions.second);
@@ -117,8 +116,8 @@ namespace hpx { namespace components { namespace amr { namespace server
         std::vector<std::vector<naming::id_type> >& outputs)
     {
         typedef components::distributing_factory::result_type result_type;
-        typedef 
-            std::vector<lcos::future_value<std::vector<naming::id_type> > >
+        typedef
+            std::vector<lcos::future<std::vector<naming::id_type> > >
         lazyvals_type;
 
         // start an asynchronous operation for each of the stencil value instances
@@ -134,11 +133,11 @@ namespace hpx { namespace components { namespace amr { namespace server
     }
 
     ///////////////////////////////////////////////////////////////////////////////
-    // Connect the given output ports with the correct input ports, creating the 
+    // Connect the given output ports with the correct input ports, creating the
     // required static data-flow structure.
     //
-    // Currently we have exactly one stencil_value instance per data point, where 
-    // the output ports of a stencil_value are connected to the input ports of the 
+    // Currently we have exactly one stencil_value instance per data point, where
+    // the output ports of a stencil_value are connected to the input ports of the
     // direct neighbors of itself.
     void unigrid_mesh::connect_input_ports(
         components::distributing_factory::result_type const* stencils,
@@ -147,14 +146,14 @@ namespace hpx { namespace components { namespace amr { namespace server
         Parameter const& par)
     {
         typedef components::distributing_factory::result_type result_type;
-        typedef std::vector<lcos::future_value<void> > lazyvals_type;
+        typedef std::vector<lcos::future<void> > lazyvals_type;
 
         lazyvals_type lazyvals;
 
         int steps = (int)outputs.size();
-        for (int step = 0; step < steps; ++step) 
+        for (int step = 0; step < steps; ++step)
         {
-            components::distributing_factory::iterator_range_type r = 
+            components::distributing_factory::iterator_range_type r =
                 locality_results(stencils[step]);
 
             components::distributing_factory::iterator_type stencil = r.first;
@@ -177,12 +176,12 @@ namespace hpx { namespace components { namespace amr { namespace server
 
     ///////////////////////////////////////////////////////////////////////////////
     void unigrid_mesh::prepare_initial_data(
-        distributed_iterator_range_type const& functions, 
+        distributed_iterator_range_type const& functions,
         std::vector<naming::id_type>& initial_data,
         std::size_t numvalues,
         Parameter const& par)
     {
-        typedef std::vector<lcos::future_value<naming::id_type> > lazyvals_type;
+        typedef std::vector<lcos::future<naming::id_type> > lazyvals_type;
 
         // create a data item value type for each of the functions
         lazyvals_type lazyvals;
@@ -200,12 +199,12 @@ namespace hpx { namespace components { namespace amr { namespace server
     ///////////////////////////////////////////////////////////////////////////////
     // do actual work
     void unigrid_mesh::execute(
-        components::distributing_factory::iterator_range_type const& stencils, 
-        std::vector<naming::id_type> const& initial_data, 
+        components::distributing_factory::iterator_range_type const& stencils,
+        std::vector<naming::id_type> const& initial_data,
         std::vector<naming::id_type>& result_data)
     {
         // start the execution of all stencil stencils (data items)
-        typedef std::vector<lcos::future_value<naming::id_type> > lazyvals_type;
+        typedef std::vector<lcos::future<naming::id_type> > lazyvals_type;
 
         lazyvals_type lazyvals;
         components::distributing_factory::iterator_type stencil = stencils.first;
@@ -220,14 +219,14 @@ namespace hpx { namespace components { namespace amr { namespace server
 
         wait (lazyvals, result_data);      // now wait for the results
     }
-    
+
     ///////////////////////////////////////////////////////////////////////////////
-    // 
+    //
     void unigrid_mesh::start_row(
         components::distributing_factory::iterator_range_type const& stencils)
     {
         // start the execution of all stencil stencils (data items)
-        typedef std::vector<lcos::future_value<void> > lazyvals_type;
+        typedef std::vector<lcos::future<void> > lazyvals_type;
 
         lazyvals_type lazyvals;
         components::distributing_factory::iterator_type stencil = stencils.first;
@@ -241,9 +240,9 @@ namespace hpx { namespace components { namespace amr { namespace server
     }
 
     ///////////////////////////////////////////////////////////////////////////
-    /// This is the main entry point of this component. 
+    /// This is the main entry point of this component.
     std::vector<naming::id_type> unigrid_mesh::init_execute(
-        components::component_type function_type, std::size_t numvalues, 
+        components::component_type function_type, std::size_t numvalues,
         std::size_t numsteps,
         components::component_type logging_type,
         Parameter const& par)
@@ -251,7 +250,7 @@ namespace hpx { namespace components { namespace amr { namespace server
         //hpx::util::high_resolution_timer t;
         std::vector<naming::id_type> result_data;
 
-        components::component_type stencil_type = 
+        components::component_type stencil_type =
             components::get_component_type<components::amr::server::dynamic_stencil_value>();
 
         typedef components::distributing_factory::result_type result_type;
@@ -260,7 +259,7 @@ namespace hpx { namespace components { namespace amr { namespace server
         components::distributing_factory factory;
         factory.create(applier::get_applier().get_runtime_support_gid());
 
-        // create a couple of stencil (functional) components and twice the 
+        // create a couple of stencil (functional) components and twice the
         // amount of stencil_value components
         result_type functions = factory.create_components(function_type, numvalues);
 
@@ -272,28 +271,28 @@ namespace hpx { namespace components { namespace amr { namespace server
         // this mesh is set up to take two timesteps at a time (i.e. nt0 must be even).
         // The rowsize vector computes how many points are in a row which includes
         // a specified number of levels.  For example, rowsize[0] indicates the total
-        // number of points in a row that includes all levels down to the coarsest, level=0; 
+        // number of points in a row that includes all levels down to the coarsest, level=0;
         // similarly, rowsize[1] indicates the total number of points in a row that includes
         // all finer levels down to level=1.
 
         // vectors level_begin and level_end indicate the level to which a particular index belongs
 
         // The vector each_row connects the rowsize vector with each of the 2^nlevel rows.
-        // The pattern is as follows: 
+        // The pattern is as follows:
         //     For 0 levels of refinement--
-        //       there are 2 rows:    
+        //       there are 2 rows:
         //                            1  rowsize[0]
         //                            0  rowsize[0]
-        //  
+        //
         //     For 1 level of refinement--
-        //       there are 4 rows:  
+        //       there are 4 rows:
         //                            3  rowsize[1]
         //                            2  rowsize[0]
         //                            1  rowsize[1]
         //                            0  rowsize[0]
-        // 
+        //
         //     For 2 levels of refinement--
-        //       there are 8 rows: 
+        //       there are 8 rows:
         //                             7 rowsize[2]
         //                             6 rowsize[1]
         //                             5 rowsize[2]
@@ -311,7 +310,7 @@ namespace hpx { namespace components { namespace amr { namespace server
           int level = -1;
           for (int j=par->allowedl;j>=0;j--) {
             tmp = pow(2.0,j);
-            int tmp2 = (int) tmp; 
+            int tmp2 = (int) tmp;
             if ( i%tmp2 == 0 ) {
               level = par->allowedl-j;
               level_row.push_back(level);
@@ -344,25 +343,25 @@ namespace hpx { namespace components { namespace amr { namespace server
                    num_rows,each_row,level_row,par);
 
         // initialize stencil_values using the stencil (functional) components
-        for (int i = 0; i < num_rows; ++i) 
+        for (int i = 0; i < num_rows; ++i)
             init_stencils(locality_results(stencils[i]), locality_results(functions), i,
                           dst_port,dst_src,dst_step,dst_size,src_size, par);
 
         // ask stencil instances for their output gids
         std::vector<std::vector<std::vector<naming::id_type> > > outputs(num_rows);
-        for (int i = 0; i < num_rows; ++i) 
+        for (int i = 0; i < num_rows; ++i)
             get_output_ports(locality_results(stencils[i]), outputs[i]);
 
         // connect output gids with corresponding stencil inputs
         connect_input_ports(&*stencils.begin(), outputs,dst_size,dst_step,dst_src,dst_port,par);
 
         // for loop over second row ; call start for each
-        for (int i = 1; i < num_rows; ++i) 
+        for (int i = 1; i < num_rows; ++i)
             start_row(locality_results(stencils[i]));
 
         // prepare initial data
         std::vector<naming::id_type> initial_data;
-        prepare_initial_data(locality_results(functions), initial_data, 
+        prepare_initial_data(locality_results(functions), initial_data,
                              each_row[0],par);
 
         //std::cout << " Startup grid cost " << t.elapsed() << std::endl;
@@ -373,7 +372,7 @@ namespace hpx { namespace components { namespace amr { namespace server
         if (!logging.empty())
             factory.free_components_sync(logging);
 
-        for (int i = 0; i < num_rows; ++i) 
+        for (int i = 0; i < num_rows; ++i)
             factory.free_components_sync(stencils[i]);
         factory.free_components_sync(functions);
 
@@ -381,10 +380,10 @@ namespace hpx { namespace components { namespace amr { namespace server
     }
 
     ///////////////////////////////////////////////////////////////////////////
-    /// This the other entry point of this component. 
+    /// This the other entry point of this component.
     std::vector<naming::id_type> unigrid_mesh::execute(
         std::vector<naming::id_type> const& initial_data,
-        components::component_type function_type, std::size_t numvalues, 
+        components::component_type function_type, std::size_t numvalues,
         std::size_t numsteps,
         components::component_type logging_type, Parameter const& par)
     {
@@ -393,7 +392,7 @@ namespace hpx { namespace components { namespace amr { namespace server
 
         std::vector<naming::id_type> result_data;
 #if 0
-        components::component_type stencil_type = 
+        components::component_type stencil_type =
             components::get_component_type<components::amr::server::dynamic_stencil_value >();
 
         typedef components::distributing_factory::result_type result_type;
@@ -402,14 +401,14 @@ namespace hpx { namespace components { namespace amr { namespace server
         components::distributing_factory factory;
         factory.create(applier::get_applier().get_runtime_support_gid());
 
-        // create a couple of stencil (functional) components and twice the 
+        // create a couple of stencil (functional) components and twice the
         // amount of stencil_value components
         result_type functions = factory.create_components(function_type, numvalues);
 
         std::vector<result_type> stencils;
 
         had_double_type tmp = 3*pow(2,par->allowedl);
-        int num_rows = (int) tmp; 
+        int num_rows = (int) tmp;
 
         std::vector<std::size_t> rowsize;
         for (int j=0;j<=par->allowedl;j++) {
@@ -430,19 +429,19 @@ namespace hpx { namespace components { namespace amr { namespace server
         init(locality_results(functions), locality_results(logging), numsteps);
 
         // initialize stencil_values using the stencil (functional) components
-        for (int i = 0; i < num_rows; ++i) 
+        for (int i = 0; i < num_rows; ++i)
             init_stencils(locality_results(stencils[i]), locality_results(functions), i, numvalues, par);
 
         // ask stencil instances for their output gids
         std::vector<std::vector<std::vector<naming::id_type> > > outputs(num_rows);
-        for (int i = 0; i < num_rows; ++i) 
+        for (int i = 0; i < num_rows; ++i)
             get_output_ports(locality_results(stencils[i]), outputs[i]);
 
         // connect output gids with corresponding stencil inputs
         connect_input_ports(&*stencils.begin(), outputs,numvalues,par);
 
         // for loop over second row ; call start for each
-        for (int i = 1; i < num_rows; ++i) 
+        for (int i = 1; i < num_rows; ++i)
             start_row(locality_results(stencils[i]));
 
         // do actual work
@@ -452,7 +451,7 @@ namespace hpx { namespace components { namespace amr { namespace server
         if (!logging.empty())
             factory.free_components_sync(logging);
 
-        for (int i = 0; i < num_rows; ++i) 
+        for (int i = 0; i < num_rows; ++i)
             factory.free_components_sync(stencils[i]);
         factory.free_components_sync(functions);
 #endif
@@ -466,7 +465,7 @@ namespace hpx { namespace components { namespace amr { namespace server
                                   Parameter const& par)
     {
       int i,j,k;
-      
+
       // vcolumn is the destination column number
       // vstep is the destination step (or row) number
       // vsrc_column is the source column number
@@ -498,7 +497,7 @@ namespace hpx { namespace components { namespace amr { namespace server
           }
           BOOST_ASSERT(level >= 0);
 
-          // communicate three 
+          // communicate three
           if ( step%2 == 0 || par->allowedl == 0 ) {
             // every column in the row is at the same timestep at this point
             // communicate three points:
@@ -520,8 +519,8 @@ namespace hpx { namespace components { namespace amr { namespace server
                 dst = 0;
               }
 
-              // verify that, if we are sending data to a different level, 
-              // there are two finer mesh timesteps between the source row and destination row: 
+              // verify that, if we are sending data to a different level,
+              // there are two finer mesh timesteps between the source row and destination row:
               int level_j = -1;
               for (k=0;k<=par->allowedl;k++) {
                 if ( j >= par->level_begin[k] && j < par->level_end[k] ) {
@@ -529,10 +528,10 @@ namespace hpx { namespace components { namespace amr { namespace server
                   break;
                 }
               }
-  
+
               if ( level >= 0 && level_j >= 0 ) {
                 // If level == level_j, no verification is needed (the source and destination level are
-                // the same).  
+                // the same).
                 if (level > level_j) {
                   // But if the two levels are different, the number of rows between them must be
                   // the equivalent of two finer mesh timesteps.
@@ -542,7 +541,7 @@ namespace hpx { namespace components { namespace amr { namespace server
                   double tmp = pow(2.0,par->allowedl-level);
                   int cmp = (int) tmp;
                   if ( difference != 2*cmp ) {
-                    dst = -1; 
+                    dst = -1;
                   }
 
                 }
@@ -554,7 +553,7 @@ namespace hpx { namespace components { namespace amr { namespace server
                 counter++;
               }
             }
-            
+
           } else {
             dst = step+1;
             if ( dst == num_rows ) dst = 0;
@@ -619,12 +618,12 @@ namespace hpx { namespace components { namespace amr { namespace server
               t1 = dst_step( step,column,k);
               dst_step( step,column,k) = dst_step( step,column,k+1);
               dst_step( step,column,k+1) = t1;
-  
+
               // swap the src, port info too
               t1 = dst_src( step,column,k);
               dst_src( step,column,k) = dst_src( step,column,k+1);
               dst_src( step,column,k+1) = t1;
-  
+
               t1 = dst_port( step,column,k);
               dst_port( step,column,k) = dst_port( step,column,k+1);
               dst_port( step,column,k+1) = t1;

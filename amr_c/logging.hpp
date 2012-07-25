@@ -1,12 +1,12 @@
-//  Copyright (c) 2007-2010 Hartmut Kaiser
-// 
-//  Distributed under the Boost Software License, Version 1.0. (See accompanying 
+//  Copyright (c) 2007-2012 Hartmut Kaiser
+//
+//  Distributed under the Boost Software License, Version 1.0. (See accompanying
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 #if !defined(HPX_COMPONENTS_AMR_LOGGING_NOV_10_2008_0719PM)
 #define HPX_COMPONENTS_AMR_LOGGING_NOV_10_2008_0719PM
 
-#include <hpx/lcos/mutex.hpp>
+#include <hpx/lcos/local/mutex.hpp>
 #include "stencil_data.hpp"
 #include "../parameter.hpp"
 #include <hpx/lcos/barrier.hpp>
@@ -15,9 +15,9 @@
 namespace hpx { namespace components { namespace amr { namespace server
 {
     /// This class implements a simple logging sink. It exposes the function
-    /// \a logentry which is supposed to record the received values in a 
+    /// \a logentry which is supposed to record the received values in a
     /// application specific manner.
-    class HPX_COMPONENT_EXPORT logging 
+    class HPX_COMPONENT_EXPORT logging
       : public simple_component_base<logging>
     {
     private:
@@ -33,7 +33,8 @@ namespace hpx { namespace components { namespace amr { namespace server
 
         /// This is the function implementing the logging functionality
         /// It takes the values as calculated during the current time step.
-        void logentry(stencil_data const& memblock_gid, int row, int logcode, Parameter const& par );
+        void logentry(stencil_data const& memblock_gid, std::size_t row,
+            int logcode, Parameter const& par);
 
         /// Each of the exposed functions needs to be encapsulated into an action
         /// type, allowing to generate all required boilerplate code for threads,
@@ -42,39 +43,41 @@ namespace hpx { namespace components { namespace amr { namespace server
         /// The \a set_result_action may be used to trigger any LCO instances
         /// while carrying an additional parameter of any type.
         ///
-        /// \param Result [in] The type of the result to be transferred back to 
+        /// \param Result [in] The type of the result to be transferred back to
         ///               this LCO instance.
         typedef hpx::actions::action4<
-            logging, logging_logentry, stencil_data const&, int,int,Parameter const&,
-            &logging::logentry
+            logging, logging_logentry, stencil_data const&, std::size_t,
+            int, Parameter const&, &logging::logentry
         > logentry_action;
 
     private:
-        typedef lcos::mutex mutex_type;
+        typedef lcos::local::mutex mutex_type;
         static mutex_type mtx_;
     };
-
 }}}}
 
+HPX_REGISTER_ACTION_DECLARATION_EX(
+    hpx::components::amr::server::logging::logentry_action, logentry_action);
+
 ///////////////////////////////////////////////////////////////////////////////
-namespace hpx { namespace components { namespace amr { namespace stubs 
+namespace hpx { namespace components { namespace amr { namespace stubs
 {
     ///////////////////////////////////////////////////////////////////////////
     struct logging : public components::stubs::stub_base<amr::server::logging>
     {
         ///////////////////////////////////////////////////////////////////////
-        static void logentry(naming::id_type const& gid, 
-            stencil_data const& val, int row, int logcode, Parameter const& par)
+        static void logentry(naming::id_type const& gid,
+            stencil_data const& val, std::size_t row, int logcode,
+            Parameter const& par)
         {
             typedef amr::server::logging::logentry_action action_type;
-            applier::apply<action_type>(gid, val, row, logcode,par);
+            hpx::apply<action_type>(gid, val, row, logcode,par);
         }
     };
-
 }}}}
 
 ///////////////////////////////////////////////////////////////////////////////
-namespace hpx { namespace components { namespace amr 
+namespace hpx { namespace components { namespace amr
 {
     ///////////////////////////////////////////////////////////////////////////
     class logging : public client_base<logging, amr::stubs::logging>
@@ -90,12 +93,12 @@ namespace hpx { namespace components { namespace amr
         {}
 
         ///////////////////////////////////////////////////////////////////////
-        void logentry(stencil_data const& val, int row,int logcode, Parameter const& par)
+        void logentry(stencil_data const& val, std::size_t row, int logcode,
+            Parameter const& par)
         {
             this->base_type::logentry(this->gid_, val, row, logcode, par);
         }
     };
-
 }}}
 
 #endif

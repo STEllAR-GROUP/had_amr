@@ -1,6 +1,6 @@
-//  Copyright (c) 2007-2010 Hartmut Kaiser
-// 
-//  Distributed under the Boost Software License, Version 1.0. (See accompanying 
+//  Copyright (c) 2007-2012 Hartmut Kaiser
+//
+//  Distributed under the Boost Software License, Version 1.0. (See accompanying
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 #if !defined(HPX_COMPONENTS_AMR_STUBS_FUNCTIONAL_COMPONENT_NOV_05_2008_0338PM)
@@ -11,12 +11,13 @@
 #include <hpx/runtime/threads/thread.hpp>
 #include <hpx/runtime/components/component_type.hpp>
 #include <hpx/runtime/components/stubs/stub_base.hpp>
+#include <hpx/lcos/async.hpp>
 
 #include "../server/functional_component.hpp"
 #include "../../parameter.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////
-namespace hpx { namespace components { namespace amr { namespace stubs 
+namespace hpx { namespace components { namespace amr { namespace stubs
 {
     ///////////////////////////////////////////////////////////////////////////
     struct functional_component
@@ -27,63 +28,60 @@ namespace hpx { namespace components { namespace amr { namespace stubs
 
         // The eval and is_last_timestep functions have to be overloaded by any
         // functional component derived from this class
-        static lcos::future_value<int> eval_async(naming::id_type const& gid, 
-            naming::id_type const& result, 
-            std::vector<naming::id_type> const& gids, std::size_t row, std::size_t column,
-            Parameter const& par)
+        static lcos::future<std::size_t> eval_async(naming::id_type const& gid,
+            naming::id_type const& result, std::vector<naming::id_type> const& gids, 
+            std::size_t row, std::size_t column, Parameter const& par)
         {
             // Create an eager_future, execute the required action,
             // we simply return the initialized future_value, the caller needs
             // to call get() on the return value to obtain the result
             typedef amr::server::functional_component::eval_action action_type;
-            return lcos::eager_future<action_type>(gid, result, gids, row, column,par);
+            return hpx::async<action_type>(gid, result, gids, row, column,par);
         }
 
-        static int eval(naming::id_type const& gid, 
+        static std::size_t eval(naming::id_type const& gid,
             naming::id_type const& result, std::vector<naming::id_type> const& gids,
-            int row, int column, Parameter const& par)
+            std::size_t row, std::size_t column, Parameter const& par)
         {
-            // The following get yields control while the action above 
+            // The following get yields control while the action above
             // is executed and the result is returned to the eager_future
             return eval_async(gid, result, gids, row, column,par).get();
         }
 
         ///////////////////////////////////////////////////////////////////////
-        static lcos::future_value<naming::id_type> alloc_data_async(
-            naming::id_type const& gid, int item, int maxitems,
-            int row,
-            Parameter const& par)
+        static lcos::future<naming::id_type> alloc_data_async(
+            naming::id_type const& gid, std::size_t item, std::size_t maxitems,
+            std::size_t row, Parameter const& par)
         {
             // Create an eager_future, execute the required action,
             // we simply return the initialized future_value, the caller needs
             // to call get() on the return value to obtain the result
             typedef amr::server::functional_component::alloc_data_action action_type;
-            return lcos::eager_future<action_type>(gid, item, maxitems, row, par);
+            return hpx::async<action_type>(gid, item, maxitems, row, par);
         }
 
-        static naming::id_type alloc_data(naming::id_type const& gid, 
-            int item, int maxitems, int row,
+        static naming::id_type alloc_data(naming::id_type const& gid,
+            std::size_t item, std::size_t maxitems, std::size_t row,
             Parameter const& par)
         {
             return alloc_data_async(gid, item, maxitems, row, par).get();
         }
 
         ///////////////////////////////////////////////////////////////////////
-        static lcos::future_value<void>  
-        init_async(naming::id_type const& gid, std::size_t numsteps, 
+        static lcos::future<void>
+        init_async(naming::id_type const& gid, std::size_t numsteps,
             naming::id_type const& val)
         {
             typedef amr::server::functional_component::init_action action_type;
-            return lcos::eager_future<action_type, void>(gid, numsteps, val);
+            return hpx::async<action_type>(gid, numsteps, val);
         }
 
-        static void init(naming::id_type const& gid, 
+        static void init(naming::id_type const& gid,
             std::size_t numsteps, naming::id_type const& val)
         {
             init_async(gid, numsteps, val).get();
         }
     };
-
 }}}}
 
 #endif

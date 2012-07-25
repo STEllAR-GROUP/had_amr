@@ -1,4 +1,4 @@
-//  Copyright (c) 2007-2010 Hartmut Kaiser
+//  Copyright (c) 2007-2012 Hartmut Kaiser
 // 
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying 
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -39,7 +39,7 @@ namespace hpx { namespace components { namespace amr
         /// data referred to by the parameter \a initial. After finishing 
         /// execution it returns a reference to the result as its return value
         /// (parameter \a result)
-        lcos::future_value<naming::id_type> call_async(
+        lcos::future<naming::id_type> call_async(
             naming::id_type const& initial)
         {
             return this->base_type::call_async(this->gid_, initial);
@@ -53,7 +53,7 @@ namespace hpx { namespace components { namespace amr
         ///////////////////////////////////////////////////////////////////////
         /// Return the gid's of the output ports associated with this 
         /// \a dynamic_stencil_value instance.
-        lcos::future_value<std::vector<naming::id_type> > 
+        lcos::future<std::vector<naming::id_type> > 
         get_output_ports_async()
         {
             return this->base_type::get_output_ports_async(this->gid_);

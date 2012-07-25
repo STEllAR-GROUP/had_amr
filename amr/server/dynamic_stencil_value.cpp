@@ -1,4 +1,4 @@
-//  Copyright (c) 2007-2010 Hartmut Kaiser
+//  Copyright (c) 2007-2012 Hartmut Kaiser
 //  Copyright (c) 2009 Matt Anderson
 // 
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying 
@@ -52,4 +52,3 @@ HPX_REGISTER_ACTION_EX(
 HPX_REGISTER_ACTION_EX(
     dynamic_stencil_value_double_type::wrapped_type::start_action,
     dynamic_stencil_value_double_start_action);
-HPX_DEFINE_GET_COMPONENT_TYPE(dynamic_stencil_value_double_type::wrapped_type);
