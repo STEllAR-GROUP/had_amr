@@ -35,7 +35,7 @@ typedef hpx::components::amr::server::logging had_logging_type;
 /// path = $[hpx.location]/lib    # this is the default location where to find the shared library
 ///
 HPX_REGISTER_DERIVED_COMPONENT_FACTORY(
-    hpx::components::managed_component<had_stencil_type>,
+    hpx::components::simple_component<had_stencil_type>,
     had_stencil, "had_functional_component");
 
 /// [hpx.components.had_logging]  # this must match the string below
@@ -46,17 +46,4 @@ HPX_REGISTER_MINIMAL_COMPONENT_FACTORY(
     hpx::components::simple_component<had_logging_type>, had_logging);
 
 HPX_REGISTER_ACTION_EX(had_logging_type::logentry_action, logentry_action);
-
-///////////////////////////////////////////////////////////////////////////////
-// windows needs to initialize MPFR in each shared library
-#if defined(BOOST_WINDOWS)
-
-#include "../init_mpfr.hpp"
-
-namespace hpx { namespace components { namespace amr
-{
-    // initialize mpreal default precision
-    init_mpfr init_;
-}}}
-#endif
 

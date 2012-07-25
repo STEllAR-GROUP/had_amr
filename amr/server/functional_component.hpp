@@ -10,7 +10,6 @@
 #include <hpx/runtime/applier/applier.hpp>
 #include <hpx/runtime/threads/thread.hpp>
 #include <hpx/runtime/components/component_type.hpp>
-#include <hpx/runtime/components/server/managed_component_base.hpp>
 
 #include "../../parameter.hpp"
 
@@ -19,24 +18,22 @@ namespace hpx { namespace components { namespace amr { namespace server
 {
     ///////////////////////////////////////////////////////////////////////////
     class HPX_COMPONENT_EXPORT functional_component
-      //: public simple_component_base<functional_component>
+      : public simple_component_base<functional_component>
     {
     private:
-        //typedef simple_component_base<functional_component> base_type;
+        typedef simple_component_base<functional_component> base_type;
 
     public:
         functional_component()
         {
-            /*
             if (component_invalid == base_type::get_component_type()) {
                 // first call to get_component_type, ask AGAS for a unique id
                 base_type::set_component_type(applier::get_applier().
                     get_agas_client().get_component_id("functional_component_type"));
             }
-            */
         }
 
-        typedef managed_component<functional_component> wrapping_type;
+        typedef functional_component wrapping_type;
         typedef functional_component base_type_holder;
 
         static components::component_type get_component_type()

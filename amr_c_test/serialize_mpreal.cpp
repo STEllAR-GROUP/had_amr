@@ -1,6 +1,6 @@
 //  Copyright (c) 2007-2012 Hartmut Kaiser
-// 
-//  Distributed under the Boost Software License, Version 1.0. (See accompanying 
+//
+//  Distributed under the Boost Software License, Version 1.0. (See accompanying
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 #include <hpx/hpx_fwd.hpp>
@@ -10,21 +10,22 @@
 #include <hpx/util/portable_binary_oarchive.hpp>
 
 #include "serialize_mpreal.hpp"
+#include "mpreal.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // windows needs to initialize MPFR in each shared library
-#if defined(BOOST_WINDOWS) 
+#if defined(BOOST_WINDOWS)
 
 #include "init_mpfr.hpp"
 
-namespace hpx { namespace components { namespace amr 
+namespace hpx { namespace components { namespace amr
 {
     // initialize mpreal default precision
     init_mpfr init_;
 }}}
 #endif
 
-namespace boost { namespace serialization 
+namespace boost { namespace serialization
 {
     ///////////////////////////////////////////////////////////////////////////
     template<class Archive>
@@ -45,19 +46,10 @@ namespace boost { namespace serialization
 
     ///////////////////////////////////////////////////////////////////////////
     // explicit instantiation for the correct archive types
-#if HPX_USE_PORTABLE_ARCHIVES != 0
-    template HPX_COMPONENT_EXPORT 
+    template MPFR_EXPORT
     void save(hpx::util::portable_binary_oarchive&, mpfr::mpreal const& d, unsigned int version);
-
-    template HPX_COMPONENT_EXPORT 
+    template MPFR_EXPORT
     void load(hpx::util::portable_binary_iarchive&, mpfr::mpreal& d, unsigned int version);
-#else
-    template HPX_COMPONENT_EXPORT 
-    void save(boost::archive::binary_oarchive&, mpfr::mpreal const& d, unsigned int version);
-
-    template HPX_COMPONENT_EXPORT 
-    void load(boost::archive::binary_iarchive&, mpfr::mpreal& d, unsigned int version);
-#endif
 }}
 
 #endif

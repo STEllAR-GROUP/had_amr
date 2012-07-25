@@ -5,12 +5,11 @@
 
 #include <hpx/hpx_fwd.hpp>
 #include <cmath>
-
-//#include "../amr_c/stencil.hpp"
-#include "../amr_c/stencil_data.hpp"
-#include "../amr_c/stencil_functions.hpp"
-#include "../had_config.hpp"
 #include <stdio.h>
+
+#include "../amr_c/stencil_data.hpp"
+#include "../had_config.hpp"
+#include "stencil_functions.hpp"
 
 #define UGLIFY 1
 
@@ -18,7 +17,7 @@
 // windows needs to initialize MPFR in each shared library
 #if defined(BOOST_WINDOWS)
 
-#include "../init_mpfr.hpp"
+#include "init_mpfr.hpp"
 
 namespace hpx { namespace components { namespace amr
 {

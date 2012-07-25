@@ -22,14 +22,13 @@ namespace hpx { namespace components { namespace amr
     /// allocated using alloc_data.
     class HPX_COMPONENT_EXPORT stencil
       : public amr::server::functional_component
-      , public components::managed_component_base<stencil>
     {
     private:
-        typedef components::managed_component_base<stencil> base_type;
+        typedef amr::server::functional_component base_type;
 
     public:
-        typedef stencil type_holder;
-        typedef amr::server::functional_component base_type_holder;
+        typedef stencil wrapped_type;
+        typedef stencil wrapping_type;
 
         stencil();
         ~stencil() {}

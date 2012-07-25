@@ -18,12 +18,12 @@ if(NOT HPX_ROOT)
 endif()
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${HPX_ROOT}/share/cmake-2.8/Modules)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${had_amr_SOURCE_DIR}/cmake)
 
 if(MSVC)
   set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 endif()
 
+###############################################################################
 find_package(HPX)
 
 if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
@@ -34,13 +34,47 @@ message(${HPX_BUILD_TYPE})
 
 hpx_include(SetOutputPaths)
 
-set(HPX_RPATH ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}${HPX_RPATH})
+if(NOT MSVC)
+  set(HPX_RPATH ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}${HPX_RPATH})
+endif()
 
 include_directories(${HPX_INCLUDE_DIR})
 link_directories(${HPX_LIBRARY_DIR})
 
 add_definitions(-DHPX_ACTION_ARGUMENT_LIMIT=6)
 
+###############################################################################
+# MPFR
+find_package(HPX_Mpfr)
+
+# MPFR depends on GMP, so no point looking for it if we don't have GMP
+find_package(HPX_GMP)
+if(FOUND_GMP)
+  # add GMP as a dependency
+  set(dependencies
+      ${dependencies}
+      ${GMP_LIBRARY})
+  include_directories(${GMP_INCLUDE_DIR})
+
+  if(MPFR_FOUND)
+    # add MPFR as a dependency
+    set(dependencies
+        ${dependencies}
+        ${MPFR_LIBRARY})
+
+    # FIXME: HPX_* identifiers please
+    add_definitions(-DMPFR_FOUND=1)
+    #add_definitions(-DMPFR_USE_NED_ALLOCATOR=1)
+
+    include_directories(${MPFR_INCLUDE_DIR})
+
+    # allow the mpreal class to take advantage of move semantics
+    # FIXME: HPX_* identifiers please
+    add_definitions(-DMPFR_USE_BOOST_MOVE=1)
+  endif()
+endif()
+
+###############################################################################
 # just recurse into all components subdirectories and execute the scripts there
 set(subdirs
     amr
@@ -55,26 +89,7 @@ if(RNPL_FOUND)
   include_directories(${RNPL_INCLUDE_DIR})
 endif()
 
-# MPFR depends on GMP, so no point looking for it if we don't have GMP
-find_package(HPX_GMP)
-if(FOUND_GMP)
-  find_package(HPX_MPFR)
-#  find_package(HPX_MP)
-  include_directories(${GMP_INCLUDE_DIR})
-
-  if(MPFR_FOUND)
-    # FIXME: HPX_* identifiers please
-    add_definitions(-DMPFR_FOUND=1)
-    #add_definitions(-DMPFR_USE_NED_ALLOCATOR=1)
-
-    include_directories(${MPFR_INCLUDE_DIR})
-
-    # allow the mpreal class to take advantage of move semantics
-    # FIXME: HPX_* identifiers please
-    add_definitions(-DMPFR_USE_BOOST_MOVE=1)
-  endif()
-endif()
-
+###############################################################################
 foreach(subdir ${subdirs})
   add_subdirectory(${subdir})
 endforeach()
@@ -87,27 +102,17 @@ set(sources
 set(dependencies
     had_amr_c_component
     had_amr_component
-    had_amr_c_test_component
-    hpx_component_distributing_factory${HPX_POSTFIX})
+    had_amr_c_test_lib)
 
-if(GMP_FOUND)
-  # add GMP as a dependency
+# this is a hack which needs to be cleaned up (see ticket #468)
+if(MSVC)
   set(dependencies
-      ${dependencies}
-      ${GMP_LIBRARY})
-
-  if(MPFR_FOUND)
-    # add MPFR as a dependency
-    set(dependencies
-        ${dependencies}
-        ${MPFR_LIBRARY})
-
-    # add these MPFR specific files if we have MPFR
-    set(sources
-      ${sources}
-      mpreal.cpp
-      serialize_mpreal.cpp)
-  endif()
+    ${dependencies}
+    distributing_factory${HPX_POSTFIX})
+else()
+  set(dependencies
+    ${dependencies}
+    hpx_component_distributing_factory${HPX_POSTFIX})
 endif()
 
 if(RNPL_FOUND)

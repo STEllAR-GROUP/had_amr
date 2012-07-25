@@ -13,9 +13,10 @@
 #include "stencil.hpp"
 #include "logging.hpp"
 #include "stencil_data.hpp"
-#include "stencil_functions.hpp"
 #include "stencil_data_locking.hpp"
+
 #include "../amr/unigrid_mesh.hpp"
+#include "../amr_c_test/stencil_functions.hpp"
 
 ///////////////////////////////////////////////////////////////////////////////
 namespace hpx { namespace components { namespace amr

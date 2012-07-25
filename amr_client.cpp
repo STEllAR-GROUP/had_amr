@@ -1,6 +1,6 @@
 //  Copyright (c) 2007-2012 Hartmut Kaiser
-// 
-//  Distributed under the Boost Software License, Version 1.0. (See accompanying 
+//
+//  Distributed under the Boost Software License, Version 1.0. (See accompanying
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 #include <cstring>
@@ -14,7 +14,6 @@
 #include <boost/thread.hpp>
 
 //#include "amr/stencil_value.hpp"
-#include "init_mpfr.hpp"
 #include "amr/dynamic_stencil_value.hpp"
 #include "amr/functional_component.hpp"
 #include "amr/unigrid_mesh.hpp"
@@ -28,20 +27,13 @@ namespace po = boost::program_options;
 using namespace hpx;
 
 ///////////////////////////////////////////////////////////////////////////////
-// initialize mpreal default precision
-namespace hpx { namespace components { namespace amr 
-{
-    init_mpfr init_(true);
-}}}
-
-///////////////////////////////////////////////////////////////////////////////
 int hpx_main(std::size_t numvals, std::size_t numsteps,bool do_logging,
              components::amr::Parameter const& par)
 {
     // get component types needed below
-    components::component_type function_type = 
+    components::component_type function_type =
         components::get_component_type<components::amr::stencil>();
-    components::component_type logging_type = 
+    components::component_type logging_type =
         components::get_component_type<components::amr::server::logging>();
 
     {
@@ -54,14 +46,14 @@ int hpx_main(std::size_t numvals, std::size_t numsteps,bool do_logging,
 
         hpx::util::high_resolution_timer t;
         std::vector<naming::id_type> result_data;
-        
-        // we are in spherical symmetry, r=0 is the smallest radial domain point             
+
+        // we are in spherical symmetry, r=0 is the smallest radial domain point
         components::amr::unigrid_mesh unigrid_mesh;
         unigrid_mesh.create(here);
         result_data = unigrid_mesh.init_execute(function_type, numvals, numsteps,
             do_logging ? logging_type : components::component_invalid,par);
         printf("Elapsed time: %f s\n", t.elapsed());
-    
+
     // provide some wait time to read the elapsed time measurement
     //std::cout << " Hit return " << std::endl;
     //int junk;
@@ -78,16 +70,14 @@ int hpx_main(std::size_t numvals, std::size_t numsteps,bool do_logging,
         }
         */
 
-//         boost::this_thread::sleep(boost::posix_time::seconds(3)); 
+//         boost::this_thread::sleep(boost::posix_time::seconds(3));
 
-        for (std::size_t i = 0; i < result_data.size(); ++i)
-            components::stubs::memory_block::free(result_data[i]);
+//         for (std::size_t i = 0; i < result_data.size(); ++i)
+//             components::stubs::memory_block::free(result_data[i]);
     }   // amr_mesh needs to go out of scope before shutdown
 
     // initiate shutdown of the runtime systems on all localities
-    components::stubs::runtime_support::shutdown_all();
-
-    return 0;
+    return hpx::finalize();
 }
 
 int hpx_main(po::variables_map & vm)
@@ -221,7 +211,7 @@ int hpx_main(po::variables_map & vm)
         }
     }
 
-    
+
     // derived parameters
     if ( nx0%par->granularity != 0 ) {
       std::cerr << " PROBLEM : nx0 must be divisible by the granularity " << std::endl;
@@ -305,11 +295,11 @@ int main(int argc, char* argv[])
     try {
         po::options_description desc_cmdline ("Usage: hpx_runtime [options]");
         desc_cmdline.add_options()
-            ("dist,d", po::value<std::string>(), 
+            ("dist,d", po::value<std::string>(),
                 "random distribution type (uniform or normal)")
-            ("numsteps,s", po::value<std::size_t>(), 
+            ("numsteps,s", po::value<std::size_t>(),
                 "the number of time steps to use for the computation")
-            ("parfile,p", po::value<std::string>(), 
+            ("parfile,p", po::value<std::string>(),
                 "the parameter file")
             ("verbose,v", "print calculated values after each time step")
         ;

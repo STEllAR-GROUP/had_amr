@@ -78,6 +78,14 @@
 
 #include <mpfr.h>
 
+#include <hpx/config/export_definitions.hpp>
+
+#if MPFR_EXPORTS
+#define MPFR_EXPORT HPX_SYMBOL_EXPORT
+#else
+#define MPFR_EXPORT HPX_SYMBOL_IMPORT
+#endif
+
 #if MPREAL_USE_BOOST_MOVE != 0
 #include <boost/move/move.hpp>
 #endif
@@ -108,7 +116,7 @@
 
 namespace mpfr {
 
-class mpreal {
+class MPFR_EXPORT mpreal {
 private:
   mpfr_t mp;
 #if MPREAL_USE_BOOST_MOVE != 0
@@ -369,8 +377,8 @@ public:
   friend const mpreal const_infinity(int sign = 1, mp_prec_t prec = mpreal::default_prec, mp_rnd_t rnd_mode = mpreal::default_rnd);
 
   // Output/ Input
-  friend std::ostream& operator<<(std::ostream& os, const mpreal& v);
-    friend std::istream& operator>>(std::istream& is, mpreal& v);
+  friend MPFR_EXPORT std::ostream& operator<<(std::ostream& os, const mpreal& v);
+  friend MPFR_EXPORT std::istream& operator>>(std::istream& is, mpreal& v);
 
   // Integer Related Functions
   friend const mpreal rint (const mpreal& v, mp_rnd_t rnd_mode = mpreal::default_rnd);
