@@ -29,4 +29,4 @@ HPX_REGISTER_ACTION_EX(
 HPX_REGISTER_ACTION_EX(
     functional_component_type::init_action,
     had_functional_component_init_action);
-
+HPX_DEFINE_GET_COMPONENT_TYPE(functional_component_type);

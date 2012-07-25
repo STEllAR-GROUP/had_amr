@@ -50,5 +50,3 @@ add_hpx_component(had_amr_c
   INI ${ini_files}
   DEPENDENCIES ${dependencies})
 
-
-

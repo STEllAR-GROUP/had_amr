@@ -26,8 +26,20 @@ endif()
 
 find_package(HPX)
 
-include_directories(${HPX_INCLUDE_DIRS})
-link_directories(${HPX_LINK_DIRS})
+if(${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+    set(HPX_POSTFIX ${HPX_DEBUG_POSTFIX})
+endif()
+
+message(${HPX_BUILD_TYPE})
+
+hpx_include(SetOutputPaths)
+
+set(HPX_RPATH ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}${HPX_RPATH})
+
+include_directories(${HPX_INCLUDE_DIR})
+link_directories(${HPX_LIBRARY_DIR})
+
+add_definitions(-DHPX_ACTION_ARGUMENT_LIMIT=6)
 
 # just recurse into all components subdirectories and execute the scripts there
 set(subdirs
@@ -73,10 +85,10 @@ set(sources
 
 # define basic dependencies
 set(dependencies
-    had_amr_component
     had_amr_c_component
+    had_amr_component
     had_amr_c_test_component
-    distributing_factory_component)
+    hpx_component_distributing_factory${HPX_POSTFIX})
 
 if(GMP_FOUND)
   # add GMP as a dependency

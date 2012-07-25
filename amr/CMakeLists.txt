@@ -28,7 +28,7 @@ set(ini_files
     had_amr.ini)
 
 set(dependencies
-    distributing_factory_component
+    hpx_component_distributing_factory${HPX_POSTFIX}
     had_amr_c_component)
 
 if(GMP_FOUND)
@@ -51,8 +51,6 @@ if(GMP_FOUND)
     set(sources ${sources} ../mpreal.cpp ../serialize_mpreal.cpp)
   endif()
 endif()
-
-add_definitions(-DHPX_ACTION_ARGUMENT_LIMIT=6)
 
 add_hpx_component(had_amr
   SOURCES ${sources}
