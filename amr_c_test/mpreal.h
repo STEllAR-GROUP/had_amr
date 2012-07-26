@@ -124,10 +124,10 @@ private:
 #endif
 
 public:
-  static mp_rnd_t   default_rnd;
-  static mp_prec_t  default_prec;
-  static int        default_base;
-  static int        double_bits;
+  static MPFR_EXPORT mp_rnd_t   default_rnd;
+  static MPFR_EXPORT mp_prec_t  default_prec;
+  static MPFR_EXPORT int        default_base;
+  static MPFR_EXPORT int        double_bits;
 
 public:
   // Constructors && type conversion
@@ -150,7 +150,7 @@ public:
   mpreal(const int u, mp_prec_t prec = default_prec, mp_rnd_t mode = default_rnd);
   mpreal(const char* s, mp_prec_t prec = default_prec, int base = default_base, mp_rnd_t mode = default_rnd);
 
-  ~mpreal();
+  MPFR_EXPORT ~mpreal();
 
   // Operations
   // =

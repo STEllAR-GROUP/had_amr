@@ -96,7 +96,7 @@ int hpx_main(po::variables_map & vm)
     par->allowedl    = 0;
     par->loglevel    = 2;
     par->output      = 1.0;
-    par->output_stdout = 1;
+    par->output_stdout = do_logging;
     par->lambda      = 0.15;
     int nx0          = 33;
     par->nt0         = numsteps;

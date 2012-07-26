@@ -71,7 +71,7 @@ namespace hpx { namespace components { namespace amr
         scoped_values_lock<lcos::local::mutex> l(resultval, val);
 
         // Here we give the coordinate value to the result (prior to sending it to the user)
-        int compute_index;
+        int compute_index = 0;
         bool boundary = false;
         int bbox[2] = { 0, 0 };   // initialize bounding box
 

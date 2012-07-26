@@ -43,6 +43,7 @@ if(GMP_FOUND)
 endif()
 
 add_definitions(-DHAD_AMR_C_TEST_EXPORTS)
+add_definitions(-DMPFR_EXPORTS)
 
 add_hpx_library(had_amr_c_test
   MODULE had_amr_c_test

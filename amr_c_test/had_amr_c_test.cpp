@@ -11,9 +11,9 @@
 #include "../had_config.hpp"
 #include "stencil_functions.hpp"
 
-#ifndef HAD_AMR_USE_MPET
+//#ifndef HAD_AMR_USE_MPET
 #define UGLIFY 1
-#endif
+//#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 // local functions

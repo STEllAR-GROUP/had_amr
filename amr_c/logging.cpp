@@ -66,7 +66,7 @@ namespace hpx { namespace components { namespace amr { namespace server
         // output to file "output.dat"
         FILE *fdata;
         std::vector<double> x,Phi,chi,Pi,energy;
-        double datatime;
+        double datatime = 0.0;
         if ( logcode == 0 ) {
           if (had_double_type(fmod(val.timestep_,par->output)) < 1.e-6 && val.level_ >= par->output_level) {
             for (i=0;i<val.granularity;i++) {

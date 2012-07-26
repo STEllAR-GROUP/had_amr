@@ -122,10 +122,10 @@ using std::istream;
 
 namespace mpfr{
 
-mp_rnd_t   mpreal::default_rnd  = mpfr_get_default_rounding_mode();
-mp_prec_t  mpreal::default_prec = mpfr_get_default_prec();
-int        mpreal::default_base = 10;
-int        mpreal::double_bits = -1;
+MPFR_EXPORT mp_rnd_t   mpreal::default_rnd  = mpfr_get_default_rounding_mode();
+MPFR_EXPORT mp_prec_t  mpreal::default_prec = mpfr_get_default_prec();
+MPFR_EXPORT int        mpreal::default_base = 10;
+MPFR_EXPORT int        mpreal::double_bits = -1;
 #if !defined(_WIN32) && MPFR_USE_NED_ALLOCATOR != 0
 bool       mpreal::is_custom_malloc = false;
 #endif
@@ -227,7 +227,7 @@ mpreal::mpreal(const char* s, mp_prec_t prec, int base, mp_rnd_t mode)
   mpfr_set_str(mp, s, base, mode);
 }
 
-mpreal::~mpreal()
+MPFR_EXPORT mpreal::~mpreal()
 {
   if (MPFR_MANT(mp))
     mpfr_clear(mp);
