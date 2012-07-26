@@ -57,13 +57,13 @@ if(HAD_AMR_USE_MPFR)
             ${dependencies}
             ${GMP_LIBRARY})
         include_directories(${GMP_INCLUDE_DIR})
-        
+
         find_package(HPX_MPFR)
         if(MPFR_FOUND)
-            
+
             if(HAD_AMR_USE_MPET)
                 find_package(HPX_MP)
-                
+
                 if(MP_FOUND)
                     include_directories(${MP_INCLUDE_DIR})
                     set(dependencies
@@ -72,25 +72,25 @@ if(HAD_AMR_USE_MPFR)
                     add_definitions(-DHAD_AMR_USE_MPET=1)
                 endif()
             endif()
-            
+
             # add MPFR as a dependency
             set(dependencies
                 ${dependencies}
                 ${MPFR_LIBRARY})
-            
+
             # FIXME: HPX_* identifiers please
             add_definitions(-DMPFR_FOUND=1)
             #add_definitions(-DMPFR_USE_NED_ALLOCATOR=1)
-            
+
             include_directories(${MPFR_INCLUDE_DIR})
-            
+
             # allow the mpreal class to take advantage of move semantics
             # FIXME: HPX_* identifiers please
             add_definitions(-DMPFR_USE_BOOST_MOVE=1)
         endif()
     endif()
 endif()
-    
+
 ###############################################################################
 # just recurse into all components subdirectories and execute the scripts there
 set(subdirs
@@ -144,7 +144,8 @@ source_group("Source Files" FILES ${sources})
 add_hpx_executable(had_amr_client
     MODULE had_amr
     SOURCES ${sources}
-    DEPENDENCIES ${dependencies})
+    DEPENDENCIES ${dependencies}
+    FOLDER "Had_Amr")
 
 # add a dependency to the pseudo-target
 #add_hpx_pseudo_dependencies(examples.had_amr had_amr_client_exe)

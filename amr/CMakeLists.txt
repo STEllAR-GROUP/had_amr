@@ -15,11 +15,14 @@ else()
     hpx_component_distributing_factory${HPX_POSTFIX})
 endif()
 
+set (dependencies
+     ${dependencies}
+     had_amr_c_test_lib)
+
 if(FOUND_GMP)
   # add GMP as a dependency
   set(dependencies
       ${dependencies}
-      had_amr_c_test_lib
       ${GMP_LIBRARY})
   include_directories(${GMP_INCLUDE_DIR})
 
@@ -43,7 +46,7 @@ endif()
 
 add_hpx_component(had_amr
   AUTOGLOB
-  FOLDER "Had_Amr"
+  FOLDER "Had_Amr/Components"
   INI ${ini_files}
   DEPENDENCIES ${dependencies})
 

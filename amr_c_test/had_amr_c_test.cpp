@@ -16,19 +16,6 @@
 #endif
 
 ///////////////////////////////////////////////////////////////////////////////
-// windows needs to initialize MPFR in each shared library
-#if defined(BOOST_WINDOWS)
-
-#include "init_mpfr.hpp"
-
-namespace hpx { namespace components { namespace amr
-{
-    // initialize mpreal default precision
-    init_mpfr init_;
-}}}
-#endif
-
-///////////////////////////////////////////////////////////////////////////////
 // local functions
 inline int floatcmp(had_double_type const& x1, had_double_type const& x2)
 {
@@ -92,7 +79,7 @@ int generate_initial_data(stencil_data* val, std::size_t item,
 
     had_double_type r_start = 0.0;
     for (std::size_t j=par.allowedl;j>level;j--) {
-      r_start += (par.level_end[j]-par.level_begin[j])*par.granularity*par.dx0/pow(2.0,j);
+      r_start += (par.level_end[j]-par.level_begin[j])*par.granularity*par.dx0/std::pow(2.0,int(j));
     }
     for (std::size_t j=par.level_begin[level];j<item;j++) {
       r_start += dx*par.granularity;

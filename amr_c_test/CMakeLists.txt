@@ -10,7 +10,7 @@ set(sources
 set(headers
     rand.hpp stencil_functions.hpp)
 
-if(FOUND_GMP)
+if(GMP_FOUND)
   # add GMP as a dependency
   set(dependencies
       ${dependencies}
@@ -33,6 +33,9 @@ if(FOUND_GMP)
     # FIXME: HPX_* identifiers please
     add_definitions(-DMPFR_USE_BOOST_MOVE=1)
 
+    # make sure the mpfr stuff is exported
+    add_definitions(-DMPFR_EXPORTS)
+
     # add the mpfr wrapper class sources
     set(headers ${headers} mpreal.h serialize_mpreal.hpp)
     set(sources ${sources} mpreal.cpp serialize_mpreal.cpp init_mpfr.hpp)
@@ -45,6 +48,6 @@ add_hpx_library(had_amr_c_test
   MODULE had_amr_c_test
   SOURCES ${sources}
   HEADERS ${headers}
-  FOLDER "Had_Amr"
+  FOLDER "Had_Amr/Components"
   DEPENDENCIES ${dependencies})
 

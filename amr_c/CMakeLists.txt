@@ -9,15 +9,16 @@ set(ini_files
 # this is a hack which needs to be cleaned up (see ticket #468)
 if(MSVC)
   set(dependencies
-    distributing_factory${HPX_POSTFIX}
-    had_amr_component
-    had_amr_c_test_lib)
+    distributing_factory${HPX_POSTFIX})
 else()
   set(dependencies
-    hpx_component_distributing_factory${HPX_POSTFIX}
+    hpx_component_distributing_factory${HPX_POSTFIX})
+endif()
+
+set(dependencies
+    ${dependencies}
     had_amr_component
     had_amr_c_test_lib)
-endif()
 
 if(FOUND_GMP)
   # add GMP as a dependency
@@ -46,7 +47,7 @@ endif()
 
 add_hpx_component(had_amr_c
   AUTOGLOB
-  FOLDER "Had_Amr"
+  FOLDER "Had_Amr/Components"
   INI ${ini_files}
   DEPENDENCIES ${dependencies})
 
