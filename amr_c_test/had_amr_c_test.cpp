@@ -11,7 +11,9 @@
 #include "../had_config.hpp"
 #include "stencil_functions.hpp"
 
+#ifndef HAD_AMR_USE_MPET
 #define UGLIFY 1
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 // windows needs to initialize MPFR in each shared library
@@ -31,7 +33,7 @@ namespace hpx { namespace components { namespace amr
 inline int floatcmp(had_double_type const& x1, had_double_type const& x2)
 {
   // compare to floating point numbers
-  static had_double_type const epsilon = 1.e-8;
+  static had_double_type const epsilon(1.e-8);
   if ( x1 + epsilon >= x2 && x1 - epsilon <= x2 ) {
     // the numbers are close enough for coordinate comparison
     return 1;
@@ -54,7 +56,7 @@ inline had_double_type initial_chi(had_double_type const& r,Par const& par)
 inline had_double_type initial_Phi(had_double_type const& r,Par const& par)
 {
   // Phi is the r derivative of chi
-  static had_double_type const c_m2 = -2.;
+  static had_double_type const c_m2(-2.);
   return par.amp*exp( -(r-par.R0)*(r-par.R0)/(par.delta*par.delta) ) * ( c_m2*(r-par.R0)/(par.delta*par.delta) );
 }
 
@@ -89,10 +91,10 @@ int generate_initial_data(stencil_data* val, std::size_t item,
     had_double_type dx = par.dx0/pow(2.0,(int) level);
 
     had_double_type r_start = 0.0;
-    for (int j=par.allowedl;j>level;j--) {
+    for (std::size_t j=par.allowedl;j>level;j--) {
       r_start += (par.level_end[j]-par.level_begin[j])*par.granularity*par.dx0/pow(2.0,j);
     }
-    for (int j=par.level_begin[level];j<item;j++) {
+    for (std::size_t j=par.level_begin[level];j<item;j++) {
       r_start += dx*par.granularity;
     }
 
@@ -158,7 +160,7 @@ int rkupdate(std::vector< nodedata* > const& vecval, stencil_data* result,
     if ( compute_index+result->granularity+7 < vecval.size() ) end = compute_index+result->granularity+7;
     else end = vecval.size();
 
-    for (int j=start;  j<end;j++) {
+    for (std::size_t j=start;  j<end;j++) {
       calcrhs(&rhs,vecval,vecx,0,dx,size,boundary,bbox,j,par);
       for (int i=0; i<num_eqns; i++) {
         work[j].phi[0][i] = vecval[j]->phi[0][i];
@@ -202,7 +204,7 @@ int rkupdate(std::vector< nodedata* > const& vecval, stencil_data* result,
 
   //----------------------------------------------------------------------
   // iter 1
-    for (int j=start; j<end; j++) {
+    for (std::size_t j=start; j<end; j++) {
       calcrhs(&rhs,pwork,vecx,1,dx,size,boundary,bbox,j,par);
       for (int i=0; i<num_eqns; i++) {
         work2[j].phi[0][i] = work[j].phi[0][i];
@@ -254,7 +256,7 @@ int rkupdate(std::vector< nodedata* > const& vecval, stencil_data* result,
 
   //----------------------------------------------------------------------
   // iter 2
-    for (int j=0; j<result->granularity; j++) {
+    for (std::size_t j=0; j<result->granularity; j++) {
       calcrhs(&rhs,pwork2,vecx,1,dx,size,boundary,bbox,j+compute_index,par);
       for (int i=0; i<num_eqns; i++) {
 #ifndef UGLIFY
@@ -297,7 +299,7 @@ int rkupdate(std::vector< nodedata* > const& vecval, stencil_data* result,
     }
 
     // Calculate the energy
-    for (int j=0; j<result->granularity; j++) {
+    for (std::size_t j=0; j<result->granularity; j++) {
 #ifndef UGLIFY
         result->value_[j].energy = c_0_5*(*vecx[j])*(*vecx[j])*(
                                   result->value_[j].phi[0][2]*result->value_[j].phi[0][2] // Pi^2
@@ -469,8 +471,10 @@ void calcrhs(struct nodedata * rhs,
 
   if ( compute_index + 1 < size && compute_index - 1 >= 0 ) {
 
+    /*
     had_double_type const& chi_np1 = vecval[compute_index+1]->phi[flag][0];
     had_double_type const& chi_nm1 = vecval[compute_index-1]->phi[flag][0];
+    */
 
 #ifndef UGLIFY
     rhs->phi[0][0] = Pi + par.eps*diss_chi; // chi rhs

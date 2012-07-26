@@ -12,6 +12,8 @@
 
 #include "logging.hpp"
 
+#include <string>
+
 ///////////////////////////////////////////////////////////////////////////////
 namespace hpx { namespace components { namespace amr { namespace server
 {
@@ -22,11 +24,18 @@ namespace hpx { namespace components { namespace amr { namespace server
       return boost::lexical_cast<std::string>(d);
     }
 
-#if MPFR_FOUND != 0
+#ifdef MPFR_FOUND
+#ifdef HAD_AMR_USE_MPET
+    inline std::string convert(mp::mp_<mp::mpfr> const & d)
+    {
+      return d.to_string();
+    }
+#else
     inline std::string convert(mpfr::mpreal const & d)
     {
       return d.to_string();
     }
+#endif
 #endif
 
 
@@ -40,11 +49,11 @@ namespace hpx { namespace components { namespace amr { namespace server
         int i;
 
         if ( par->output_stdout == 1 ) {
-          if (fmod(val.timestep_,par->output) < 1.e-6) {
+          if (had_double_type(fmod(val.timestep_,par->output)) < 1.e-6) {
             for (i=0;i<val.granularity;i++) {
               std::cout << " AMR Level: " << val.level_
                         << " Timestep: " <<  val.timestep_
-                        << " Time: " << val.timestep_*par->dx0*par->lambda
+                        << " Time: " << had_double_type(val.timestep_*par->dx0*par->lambda)
                         << " row: " << row
                         << " index: " << val.index_
                         << " Value: " << val.value_[i].phi[0][0]
@@ -59,14 +68,14 @@ namespace hpx { namespace components { namespace amr { namespace server
         std::vector<double> x,Phi,chi,Pi,energy;
         double datatime;
         if ( logcode == 0 ) {
-          if (fmod(val.timestep_,par->output) < 1.e-6 && val.level_ >= par->output_level) {
+          if (had_double_type(fmod(val.timestep_,par->output)) < 1.e-6 && val.level_ >= par->output_level) {
             for (i=0;i<val.granularity;i++) {
               x.push_back(val.x_[i]);
               chi.push_back(val.value_[i].phi[0][0]);
               Phi.push_back(val.value_[i].phi[0][1]);
               Pi.push_back(val.value_[i].phi[0][2]);
               energy.push_back(val.value_[i].energy);
-              datatime = val.timestep_*par->dx0*par->lambda;
+              datatime = had_double_type(val.timestep_*par->dx0*par->lambda);
 
               std::string x_str = convert(val.x_[i]);
               std::string chi_str = convert(val.value_[i].phi[0][0]);
@@ -109,7 +118,7 @@ namespace hpx { namespace components { namespace amr { namespace server
           for (i=0;i<val.granularity;i++) {
             x.push_back(val.x_[i]);
             chi.push_back(val.value_[i].phi[0][0]);
-            datatime = val.timestep_*par->dx0*par->lambda;
+            datatime = had_double_type(val.timestep_*par->dx0*par->lambda);
 
             std::string x_str = convert(val.x_[i]);
             std::string chi_str = convert(val.value_[i].phi[0][0]);
@@ -126,11 +135,11 @@ namespace hpx { namespace components { namespace amr { namespace server
           for (i=0;i<val.granularity;i++) {
             x.push_back(val.x_[i]);
             chi.push_back(val.value_[i].phi[0][0]);
-            datatime = val.timestep_*par->dx0*par->lambda;
+            datatime = had_double_type(val.timestep_*par->dx0*par->lambda);
 
             std::string x_str = convert(val.x_[i]);
             std::string chi_str = convert(val.value_[i].phi[0][0]);
-            std::string time_str = convert(val.timestep_*par->dx0*par->lambda);
+            std::string time_str = convert(had_double_type(val.timestep_*par->dx0*par->lambda));
 
             fdata = fopen("logcode2.dat","a");
             fprintf(fdata,"%d %s %s %s\n",val.level_,time_str.c_str(),x_str.c_str(),chi_str.c_str());

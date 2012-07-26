@@ -41,22 +41,36 @@ endif()
 include_directories(${HPX_INCLUDE_DIR})
 link_directories(${HPX_LIBRARY_DIR})
 
-add_definitions(-DHPX_ACTION_ARGUMENT_LIMIT=6)
+add_definitions(-DHPX_ACTION_ARGUMENT_LIMIT=7)
+add_definitions(-DHPX_FUNCTION_LIMIT=10)
 
-###############################################################################
-# MPFR
-find_package(HPX_Mpfr)
+
+set(HAD_AMR_USE_MPET ON CACHE BOOL "Using MP Expression template library")
 
 # MPFR depends on GMP, so no point looking for it if we don't have GMP
 find_package(HPX_GMP)
-if(FOUND_GMP)
+if(GMP_FOUND)
   # add GMP as a dependency
   set(dependencies
       ${dependencies}
       ${GMP_LIBRARY})
   include_directories(${GMP_INCLUDE_DIR})
 
+  find_package(HPX_MPFR)
   if(MPFR_FOUND)
+
+    if(HAD_AMR_USE_MPET)
+        find_package(HPX_MP)
+
+        if(MP_FOUND)
+          include_directories(${MP_INCLUDE_DIR})
+          set(dependencies
+              ${dependencies}
+              ${MP_LIBRARY})
+          add_definitions(-DHAD_AMR_USE_MPET=1)
+        endif()
+    endif()
+
     # add MPFR as a dependency
     set(dependencies
         ${dependencies}

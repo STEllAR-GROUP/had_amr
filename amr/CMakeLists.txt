@@ -19,6 +19,7 @@ if(FOUND_GMP)
   # add GMP as a dependency
   set(dependencies
       ${dependencies}
+      had_amr_c_test_lib
       ${GMP_LIBRARY})
   include_directories(${GMP_INCLUDE_DIR})
 

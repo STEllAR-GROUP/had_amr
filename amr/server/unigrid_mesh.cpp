@@ -476,7 +476,7 @@ namespace hpx { namespace components { namespace amr { namespace server
       //using namespace boost::assign;
 
       int counter;
-      int step,dst;
+      std::size_t step,dst;
       int found;
 
       //for (step=0;step<num_rows;step = step + 1) {

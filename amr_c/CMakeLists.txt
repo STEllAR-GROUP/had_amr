@@ -41,14 +41,8 @@ if(FOUND_GMP)
     # allow the mpreal class to take advantage of move semantics
     # FIXME: HPX_* identifiers please
     add_definitions(-DMPFR_USE_BOOST_MOVE=1)
-
-    # add the mpfr wrapper class sources
-    set(headers ${headers} mpreal.h serialize_mpreal.hpp)
-    set(sources ${sources} mpreal.cpp serialize_mpreal.cpp init_mpfr.hpp)
   endif()
 endif()
-
-add_definitions(-DHPX_ACTION_ARGUMENT_LIMIT=6)
 
 add_hpx_component(had_amr_c
   AUTOGLOB

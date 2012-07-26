@@ -6,11 +6,18 @@
 #if !defined(HPX_COMPONENTS_HAD_CONFIG_FEB_08_2010_0226PM)
 #define HPX_COMPONENTS_HAD_CONFIG_FEB_08_2010_0226PM
 
-#if MPFR_FOUND != 0
-#include "mpreal.h"
-#include "serialize_mpreal.hpp"
+#ifdef MPFR_FOUND
+#   ifdef HAD_AMR_USE_MPET
+#       include <mp/mp.hpp>
+#       include <mp/mpfr.hpp>
+
+typedef mp::mp_<mp::mpfr> had_double_type;
+#   else
+#   include "amr_c_test/mpreal.h"
+#   include "amr_c_test/serialize_mpreal.hpp"
 
 typedef mpfr::mpreal had_double_type;
+#   endif
 #else
 typedef double had_double_type;
 #endif
