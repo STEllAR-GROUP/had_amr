@@ -46,48 +46,51 @@ add_definitions(-DHPX_FUNCTION_LIMIT=10)
 
 
 set(HAD_AMR_USE_MPET ON CACHE BOOL "Using MP Expression template library")
+set(HAD_AMR_USE_MPFR ON CACHE BOOL "Using MP Expression template library")
 
-# MPFR depends on GMP, so no point looking for it if we don't have GMP
-find_package(HPX_GMP)
-if(GMP_FOUND)
-  # add GMP as a dependency
-  set(dependencies
-      ${dependencies}
-      ${GMP_LIBRARY})
-  include_directories(${GMP_INCLUDE_DIR})
-
-  find_package(HPX_MPFR)
-  if(MPFR_FOUND)
-
-    if(HAD_AMR_USE_MPET)
-        find_package(HPX_MP)
-
-        if(MP_FOUND)
-          include_directories(${MP_INCLUDE_DIR})
-          set(dependencies
-              ${dependencies}
-              ${MP_LIBRARY})
-          add_definitions(-DHAD_AMR_USE_MPET=1)
+if(HAD_AMR_USE_MPFR)
+    # MPFR depends on GMP, so no point looking for it if we don't have GMP
+    find_package(HPX_GMP)
+    if(GMP_FOUND)
+        # add GMP as a dependency
+        set(dependencies
+            ${dependencies}
+            ${GMP_LIBRARY})
+        include_directories(${GMP_INCLUDE_DIR})
+        
+        find_package(HPX_MPFR)
+        if(MPFR_FOUND)
+            
+            if(HAD_AMR_USE_MPET)
+                find_package(HPX_MP)
+                
+                if(MP_FOUND)
+                    include_directories(${MP_INCLUDE_DIR})
+                    set(dependencies
+                        ${dependencies}
+                        ${MP_LIBRARY})
+                    add_definitions(-DHAD_AMR_USE_MPET=1)
+                endif()
+            endif()
+            
+            # add MPFR as a dependency
+            set(dependencies
+                ${dependencies}
+                ${MPFR_LIBRARY})
+            
+            # FIXME: HPX_* identifiers please
+            add_definitions(-DMPFR_FOUND=1)
+            #add_definitions(-DMPFR_USE_NED_ALLOCATOR=1)
+            
+            include_directories(${MPFR_INCLUDE_DIR})
+            
+            # allow the mpreal class to take advantage of move semantics
+            # FIXME: HPX_* identifiers please
+            add_definitions(-DMPFR_USE_BOOST_MOVE=1)
         endif()
     endif()
-
-    # add MPFR as a dependency
-    set(dependencies
-        ${dependencies}
-        ${MPFR_LIBRARY})
-
-    # FIXME: HPX_* identifiers please
-    add_definitions(-DMPFR_FOUND=1)
-    #add_definitions(-DMPFR_USE_NED_ALLOCATOR=1)
-
-    include_directories(${MPFR_INCLUDE_DIR})
-
-    # allow the mpreal class to take advantage of move semantics
-    # FIXME: HPX_* identifiers please
-    add_definitions(-DMPFR_USE_BOOST_MOVE=1)
-  endif()
 endif()
-
+    
 ###############################################################################
 # just recurse into all components subdirectories and execute the scripts there
 set(subdirs
@@ -98,14 +101,14 @@ set(subdirs
 find_package(HPX_RNPL)
 
 if(RNPL_FOUND)
-  # FIXME: HPX_* identifiers please
-  add_definitions(-DRNPL_FOUND)
-  include_directories(${RNPL_INCLUDE_DIR})
+    # FIXME: HPX_* identifiers please
+    add_definitions(-DRNPL_FOUND)
+    include_directories(${RNPL_INCLUDE_DIR})
 endif()
 
 ###############################################################################
 foreach(subdir ${subdirs})
-  add_subdirectory(${subdir})
+    add_subdirectory(${subdir})
 endforeach()
 
 # define build target for this directory
@@ -120,28 +123,28 @@ set(dependencies
 
 # this is a hack which needs to be cleaned up (see ticket #468)
 if(MSVC)
-  set(dependencies
-    ${dependencies}
-    distributing_factory${HPX_POSTFIX})
+    set(dependencies
+        ${dependencies}
+        distributing_factory${HPX_POSTFIX})
 else()
-  set(dependencies
-    ${dependencies}
-    hpx_component_distributing_factory${HPX_POSTFIX})
+    set(dependencies
+        ${dependencies}
+        hpx_component_distributing_factory${HPX_POSTFIX})
 endif()
 
 if(RNPL_FOUND)
-  # add RNPL as a dependency
-  set(dependencies
-      ${dependencies}
-      ${RNPL_LIBRARY})
+    # add RNPL as a dependency
+    set(dependencies
+        ${dependencies}
+        ${RNPL_LIBRARY})
 endif()
 
 source_group("Source Files" FILES ${sources})
 
 add_hpx_executable(had_amr_client
-  MODULE had_amr
-  SOURCES ${sources}
-  DEPENDENCIES ${dependencies})
+    MODULE had_amr
+    SOURCES ${sources}
+    DEPENDENCIES ${dependencies})
 
 # add a dependency to the pseudo-target
 #add_hpx_pseudo_dependencies(examples.had_amr had_amr_client_exe)
