@@ -108,6 +108,7 @@ endif()
 # HAD_AMR uses more than 4 arguments in actions
 add_definitions(-DHPX_ACTION_ARGUMENT_LIMIT=7)
 add_definitions(-DHPX_FUNCTION_LIMIT=10)
+add_definitions(-DHPX_FUNCTION_ARGUMENT_LIMIT=10)
 
 ###############################################################################
 # just recurse into all components subdirectories and execute the scripts there

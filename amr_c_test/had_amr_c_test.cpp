@@ -11,9 +11,9 @@
 #include "../had_config.hpp"
 #include "stencil_functions.hpp"
 
-//#ifndef HAD_AMR_USE_MPET
+#ifndef HAD_AMR_USE_MPET
 #define UGLIFY 1
-//#endif
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 // local functions
@@ -115,6 +115,8 @@ int rkupdate(std::vector< nodedata* > const& vecval, stencil_data* result,
   had_double_type const& dt, had_double_type const& dx, had_double_type const& timestep,
   int level, Par const& par)
 {
+
+
   // allocate some temporary arrays for calculating the rhs
   nodedata rhs;
   std::vector<nodedata> work;
